@@ -351,9 +351,20 @@ namespace AutoUpdaterDotNET
 
             PersistenceProvider ??= new RegistryPersistenceProvider(registryLocation);
 
-            BaseUri = new Uri(AppCastURL);
 
             UpdateInfoEventArgs args;
+
+            if (AppCastURL == null)
+            {
+                ParseUpdateInfoEventArgs parseArgs = new ParseUpdateInfoEventArgs(null);
+                ParseUpdateInfoEvent(parseArgs);
+                args = parseArgs.UpdateInfo;
+            }
+            else
+            {
+                BaseUri = new Uri(AppCastURL);
+
+            
             using (MyWebClient client = GetWebClient(BaseUri, BasicAuthXML))
             {
                 string xml = client.DownloadString(BaseUri);
@@ -371,7 +382,7 @@ namespace AutoUpdaterDotNET
                     args = parseArgs.UpdateInfo;
                 }
             }
-
+            }
             if (string.IsNullOrEmpty(args?.CurrentVersion) || string.IsNullOrEmpty(args.DownloadURL))
             {
                 throw new MissingFieldException();
